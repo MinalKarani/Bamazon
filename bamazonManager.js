@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+require("dotenv").config();
 
 
 var connection = mysql.createConnection({
@@ -12,7 +13,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "Min143Sag",
+  password: process.env.password,
   database: "bamazon"
 });
 
@@ -75,18 +76,21 @@ function runSearch() {
             }
             else
             {
-            console.log();
-            for(var i=0;i<res.length;i++)
-            {
-              console.log(
-                  "Product id: " + res[i].item_id +
-                  "|| Product_Name: "+res[i].product_name +
-                  "|| Price: "+res[i].price +
-                  "|| Quantity: "+res[i].stock_quantity
+              console.log("\n| Item_id       |             Product_name            |     Price       | stock_quantity | ");
+              console.log("| ------------- |    -------------------------------- | --------------- | -------------  |");
+              for(var i=0;i<res.length;i++)
+              {
+                console.log(
+                  "| " + res[i].item_id + addSpaces(res[i].item_id,"| --------  |") +
+                  "| " + res[i].product_name + addSpaces(res[i].product_name,"      --------------------------- |") +
+                  "| " + res[i].price + addSpaces(res[i].price," ------------ |") +
+                  "| " + res[i].stock_quantity + addSpaces(res[i].stock_quantity," -----------  ") + "|" 
                   );
+                  console.log("| ------------- |    -------------------------------- | --------------- | -------------  |");
             }
-            console.log();
+            
         }
+
         runSearch();
         });
       }
@@ -196,4 +200,14 @@ function runSearch() {
       
           });
         
+      }
+
+      function addSpaces(string1,str2){
+        var str="";
+        var str1=string1.toString();
+        for(var i=0;i<=(str2.length-str1.length);i++)
+        {
+          str+=" ";
+        }
+        return str;
       }

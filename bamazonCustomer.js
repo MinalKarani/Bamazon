@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+require("dotenv").config();
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -11,7 +12,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "Min143Sag",
+  password: process.env.password,
   database: "bamazon"
 });
 
@@ -27,42 +28,34 @@ connection.connect(function(err) {
       var query="select * from products"
       connection.query(query, function(err,res){
           if(err) throw err;
-          for(var i=0;i<res.length;i++)
-          {
-            console.log(
-                "Product id: " + res[i].item_id +
-                "|| Product_Name: "+res[i].product_name +
-                "|| Price: "+res[i].price
-                );
-          }
           
+            console.log("\n| Product_id    |             Product_name            |     Price       | ");
+              console.log("| ------------- |    -------------------------------- | --------------- | ");
+              for(var i=0;i<res.length;i++)
+              {
+                console.log(
+                  "| " + res[i].item_id + addSpaces(res[i].item_id,"| --------  |") +
+                  "| " + res[i].product_name + addSpaces(res[i].product_name,"      --------------------------- |") +
+                  "| " + res[i].price + addSpaces(res[i].price," ------------ |") + "|" 
+                  );
+                  console.log("| ------------- |    -------------------------------- | --------------- | ");
+          }
+          purchaseProduct();
       });
-      purchaseProduct();
+     
   }
 
-  /*The app should then prompt users with two messages.
-
-   * The first should ask them the ID of the product they would like to buy.
-   * The second message should ask how many units of the product they would like to buy.
-
-7. Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
-
-   * If not, the app should log a phrase like `Insufficient quantity!`, and then prevent the order from going through.
-
-8. However, if your store _does_ have enough of the product, you should fulfill the customer's order.
-   * This means updating the SQL database to reflect the remaining quantity.
-   * Once the update goes through, show the customer the total cost of their purchase.*/
-function purchaseProduct(){
+  function purchaseProduct(){
     inquirer.prompt([
         {
             name:"id",
             type:"input",
-            message:"Please enter an Id of the product you would like to buy"
+            message:"\nPlease enter an Id of the product you would like to buy"
         },
         {
             name:"units",
             type:"input",
-            message:"Please enter number of units of the product you would like to buy"
+            message:"\nPlease enter number of units of the product you would like to buy"
         }
     ]).then(function(answer){
         var query="select * from products where item_id=" + answer.id;
@@ -75,38 +68,34 @@ function purchaseProduct(){
             var price=res[0].price*units;
             if(quantity>=units)
             {
-                updateRecord(quantity,units,id);
-                console.log("Total Cost of your today's purchase is:  "+price);
+                updateRecord(quantity,units,id,price);
+                console.log("\nTotal Cost of your today's purchase is:  "+price);
             }
             else{
-                console.log("Insufficient quantity!");
+                console.log("\nInsufficient quantity!");
             }
         })
-    })
+        
+    });
+    
 }
 
-function updateRecord(quantity,units,id){
+function updateRecord(quantity,units,id,price){
     var new_stock_quantity=quantity-units;
-    var query="update products set stock_quantity="+ new_stock_quantity +" where item_id = "+id;
+    var query="update products set stock_quantity="+ new_stock_quantity +",product_sales = " + price + " where item_id = "+id;
     connection.query(query, function(err,response){
         if(err) throw err;
         //console.log("response: "+response);
-    })
+    });
+    connection.end();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function addSpaces(string1,str2){
+    var str="";
+    var str1=string1.toString();
+    for(var i=0;i<=(str2.length-str1.length);i++)
+    {
+      str+=" ";
+    }
+    return str;
+  }
