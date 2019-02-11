@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var Table = require('cli-table');
 require("dotenv").config();
 
 var connection = mysql.createConnection({
@@ -18,33 +19,63 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId);
-  
-  display();
-  //connection.end();
+    
+  runSearch();
   })
 
+  //Main Menu
+  function runSearch() {
+    inquirer
+      .prompt({
+        name: "menu",
+        type: "rawlist",
+        message: "What would you like to do?",
+        choices: [
+          "View Products for Sale",
+          "Purchase Product",
+          "Exit"
+        ]
+      })
+      .then(function(answer) {
+        switch (answer.menu) {
+        case "View Products for Sale":
+          display();
+          break;
+  
+        case "Purchase Product":
+          purchaseProduct();
+          break;
+    
+        case "Exit":
+          connection.end();
+          break;
+        }
+      });
+  }
+
+  //Display products available for sale
   function display(){
       var query="select * from products"
       connection.query(query, function(err,res){
           if(err) throw err;
-          
-            console.log("\n| Product_id    |             Product_name            |     Price       | ");
-              console.log("| ------------- |    -------------------------------- | --------------- | ");
-              for(var i=0;i<res.length;i++)
-              {
-                console.log(
-                  "| " + res[i].item_id + addSpaces(res[i].item_id,"| --------  |") +
-                  "| " + res[i].product_name + addSpaces(res[i].product_name,"      --------------------------- |") +
-                  "| " + res[i].price + addSpaces(res[i].price," ------------ |") + "|" 
-                  );
-                  console.log("| ------------- |    -------------------------------- | --------------- | ");
+         //Table object 
+          var table = new Table({
+            head: ['Id', 'Product_name', 'price']
+          , colWidths: [4, 30, 10]
+          });
+          for(i=0;i<res.length;i++){
+            table.push(
+              [res[i].item_id, res[i].product_name,  res[i].price]
+            );
           }
-          purchaseProduct();
-      });
-     
+            if (err) throw err;
+            console.log(table.toString());
+          runSearch();
+  });
+
   }
 
+//lest customer purchase the product
   function purchaseProduct(){
     inquirer.prompt([
         {
@@ -74,12 +105,15 @@ connection.connect(function(err) {
             else{
                 console.log("\nInsufficient quantity!");
             }
+           runSearch();
         })
         
     });
     
+    
 }
 
+//update database if customer purchased the product
 function updateRecord(quantity,units,id,price){
     var new_stock_quantity=quantity-units;
     var query="update products set stock_quantity="+ new_stock_quantity +",product_sales = " + price + " where item_id = "+id;
@@ -87,15 +121,6 @@ function updateRecord(quantity,units,id,price){
         if(err) throw err;
         //console.log("response: "+response);
     });
-    connection.end();
+       ;
 }
 
-function addSpaces(string1,str2){
-    var str="";
-    var str1=string1.toString();
-    for(var i=0;i<=(str2.length-str1.length);i++)
-    {
-      str+=" ";
-    }
-    return str;
-  }

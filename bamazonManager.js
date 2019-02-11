@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var Table = require('cli-table'); 
 require("dotenv").config();
 
 
@@ -19,12 +20,11 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId);
-  
+   
  runSearch();
   
 })
-
+//Main Menu
 function runSearch() {
         inquirer
           .prompt({
@@ -76,18 +76,18 @@ function runSearch() {
             }
             else
             {
-              console.log("\n| Item_id       |             Product_name            |     Price       | stock_quantity | ");
-              console.log("| ------------- |    -------------------------------- | --------------- | -------------  |");
-              for(var i=0;i<res.length;i++)
-              {
-                console.log(
-                  "| " + res[i].item_id + addSpaces(res[i].item_id,"| --------  |") +
-                  "| " + res[i].product_name + addSpaces(res[i].product_name,"      --------------------------- |") +
-                  "| " + res[i].price + addSpaces(res[i].price," ------------ |") +
-                  "| " + res[i].stock_quantity + addSpaces(res[i].stock_quantity," -----------  ") + "|" 
-                  );
-                  console.log("| ------------- |    -------------------------------- | --------------- | -------------  |");
+            //Table object
+            var table = new Table({
+              head: ['Id', 'Product_name', 'price','stock_quantity']
+            , colWidths: [4, 30, 10,20]
+            });
+            for(i=0;i<res.length;i++){
+              table.push(
+                [res[i].item_id, res[i].product_name,  res[i].price,res[i].stock_quantity]
+              );
             }
+              
+              console.log(table.toString());
             
         }
 
@@ -150,8 +150,6 @@ function runSearch() {
                 {
                     var item_quantity=0;
                     item_quantity=parseInt(res[0].stock_quantity)+parseInt(answer1.itemquantity);
-                    console.log(res[0].stock_quantity);
-                    console.log(item_quantity);
                     var query1="update products set stock_quantity ="+ item_quantity +" where item_id = "+answer1.itemid;
                     connection.query(query1, function(err,response){
                     if(err) throw err;
@@ -200,14 +198,4 @@ function runSearch() {
       
           });
         
-      }
-
-      function addSpaces(string1,str2){
-        var str="";
-        var str1=string1.toString();
-        for(var i=0;i<=(str2.length-str1.length);i++)
-        {
-          str+=" ";
-        }
-        return str;
       }

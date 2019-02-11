@@ -1,6 +1,7 @@
 
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var Table = require('cli-table'); 
  require("dotenv").config();
 
 var connection = mysql.createConnection({
@@ -19,12 +20,12 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId);
-  
+    
  runSearch();
   
 })
 
+//Main Menu
 function runSearch() {
         inquirer
           .prompt({
@@ -54,6 +55,7 @@ function runSearch() {
           });
 }
 
+//Display product sales and total Profit for department 
 function productsales(){
 
   var query="select departments.department_id,departments.department_name,departments.over_head_costs,sum(products.product_sales) as productsales from departments " 
@@ -68,27 +70,26 @@ function productsales(){
       }
       else
       {
-      console.log("\n| department_id | department_name | over_head_costs | product_sales | total_profit | ");
-      console.log("| ------------- | --------------- | --------------- | ------------- | ------------ | ");
-      for(var i=0;i<res.length;i++)
-      {
+     
+      var table = new Table({
+        head: ['Id', 'department_name', 'over_head_costs','product_sales','total_profit']
+      , colWidths: [4, 20, 17, 15, 15]
+      });
+      for(i=0;i<res.length;i++){
         var total_profit=((res[i].productsales)-(res[i].over_head_costs));
-        console.log(
-            "| " + res[i].department_id + "             " +
-            "| " + res[i].department_name + "            " +
-            "| " + res[i].over_head_costs + "              " +
-            "| " + res[i].productsales + "            " +
-            "| " + total_profit + "           |" );
-            console.log("| ------------- | --------------- | --------------- | ------------- | ------------ | ");
-            
+        table.push(
+          [res[i].department_id, res[i].department_name, res[i].over_head_costs, res[i].productsales,total_profit]
+        );
       }
-      console.log();
+      
+        console.log(table.toString());
   }
   runSearch();
   });
 }
 
-      function newDept(){
+//lets Supervisor add new Department to the store
+function newDept(){
         console.log("\nEnter details of new Department to be added.\n");
         inquirer
           .prompt([{
