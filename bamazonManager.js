@@ -1,7 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var Table = require('cli-table'); 
-var Validation = require("./validationModule.js")
 require("dotenv").config();
 
 
