@@ -1,7 +1,9 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 var Table = require('cli-table'); 
+var Validation = require("./validationModule.js")
 require("dotenv").config();
+
 
 
 var connection = mysql.createConnection({
@@ -130,12 +132,20 @@ function runSearch() {
           .prompt([{
             name: "itemid",
             type: "input",
-            message: "\nEnter an Id of an Item for which you would like to add more quantity?"
+            message: "\nEnter an Id of an Item for which you would like to add more quantity?",
+            validate: function (input) {
+              // Declare function as asynchronous, and save the done callback
+              var done = this.async();
+              validation(input,"n",done)}
           },
           {
             name: "itemquantity",
             type: "input",
-            message: "\nHow much quantity?"
+            message: "\nHow much quantity?",
+            validate: function (input) {
+               // Declare function as asynchronous, and save the done callback
+               var done = this.async();
+               validation(input,"n",done)}
           }
         ]).then(function(answer1){
               var query="select * from products where item_id = "+answer1.itemid;
@@ -154,7 +164,7 @@ function runSearch() {
                     connection.query(query1, function(err,response){
                     if(err) throw err;
                 });
-                runSearch();               }
+                runSearch();  }
       
           });
         });
@@ -169,22 +179,35 @@ function runSearch() {
           .prompt([{
             name: "productname",
             type: "input",
-            message: "\nEnter Product Name"
+            message: "\nEnter Product Name",
+            validate: function(input){
+              // Declare function as asynchronous, and save the done callback
+              var done = this.async();
+            validation(input,"t",done)}
           },
           {
             name: "productDept",
             type: "input",
-            message: "\nEnter Product Department"
+            message: "\nEnter Product Department",
+            validate: function(input){
+              var done = this.async();
+              validation(input,"t",done)}
           },
           {
             name: "stockquantity",
             type: "input",
-            message: "\nEnter Product Quantity"
+            message: "\nEnter Product Quantity",
+            validate: function(input){
+              var done = this.async();
+              validation(input,"n",done)}
           },
           {
             name: "price",
             type: "input",
-            message: "\nEnter Product Price"
+            message: "\nEnter Product Price",
+            validate: function(input){
+              var done = this.async();
+              validation(input,"n",done)}
           }
         ]).then(function(answer){
               
@@ -199,3 +222,30 @@ function runSearch() {
           });
         
       }
+
+      function validation(input,type,done){
+                        
+          // Do async stuff
+          setTimeout(function() {
+            if(type==="t")
+            {
+              if (!input) {
+                  // Pass the return value in the done callback
+                  done('You need to provide Name');
+                  return;
+              }
+          }
+          else if (type==="n")     
+          {
+            if((!input)||isNaN(input)){
+              // Pass the return value in the done callback
+              done('You need to provide number');
+              return;
+            }
+          }
+          
+          // Pass the return value in the done callback
+          done(null, true);
+          }, 1000);
+      }
+      

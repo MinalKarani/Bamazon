@@ -95,12 +95,20 @@ function newDept(){
           .prompt([{
             name: "deptname",
             type: "input",
-            message: "\nEnter Department Name"
+            message: "\nEnter Department Name",
+            validate: function (input) {
+              // Declare function as asynchronous, and save the done callback
+              var done = this.async();
+              validation(input,"t",done)}
           },
           {
             name: "overhead",
             type: "input",
-            message: "\nEnter Over_head Cost"
+            message: "\nEnter Over_head Cost",
+            validate: function (input) {
+              // Declare function as asynchronous, and save the done callback
+              var done = this.async();
+              validation(input,"n",done)}
           }
           
         ]).then(function(answer){
@@ -116,3 +124,28 @@ function newDept(){
           });
         
       }
+      function validation(input,type,done){
+                        
+        // Do async stuff
+        setTimeout(function() {
+          if(type==="t")
+          {
+            if (!input) {
+                // Pass the return value in the done callback
+                done('You need to provide Name');
+                return;
+            }
+        }
+        else if (type==="n")     
+        {
+          if((!input)||isNaN(input)){
+            // Pass the return value in the done callback
+            done('You need to provide number');
+            return;
+          }
+        }
+        
+        // Pass the return value in the done callback
+        done(null, true);
+        }, 1000);
+    }

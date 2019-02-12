@@ -23,6 +23,7 @@ connection.connect(function(err) {
   runSearch();
   })
 
+  var totalRows=0;
   //Main Menu
   function runSearch() {
     inquirer
@@ -68,6 +69,7 @@ connection.connect(function(err) {
               [res[i].item_id, res[i].product_name,  res[i].price]
             );
           }
+          totalRows=table.length;
             if (err) throw err;
             console.log(table.toString());
           runSearch();
@@ -81,12 +83,22 @@ connection.connect(function(err) {
         {
             name:"id",
             type:"input",
-            message:"\nPlease enter an Id of the product you would like to buy"
-        },
+            message:"\nPlease enter an Id of the product you would like to buy",
+            /* Legacy way: with this.async */
+            validate: function (input) {
+                // Declare function as asynchronous, and save the done callback
+                var done = this.async();
+                validation(input,"n",done)}
+            },
         {
             name:"units",
             type:"input",
-            message:"\nPlease enter number of units of the product you would like to buy"
+            message:"\nPlease enter number of units of the product you would like to buy",
+            /* Legacy way: with this.async */
+            validate: function (input) {
+                // Declare function as asynchronous, and save the done callback
+                var done = this.async();
+                validation(input,"n",done)}
         }
     ]).then(function(answer){
         var query="select * from products where item_id=" + answer.id;
@@ -124,3 +136,28 @@ function updateRecord(quantity,units,id,price){
        ;
 }
 
+function validation(input,type,done){
+                        
+    // Do async stuff
+    setTimeout(function() {
+      if(type==="t")
+      {
+        if (!input) {
+            // Pass the return value in the done callback
+            done('You need to provide Name');
+            return;
+        }
+    }
+    else if (type==="n")     
+    {
+      if((!input)||isNaN(input)){
+        // Pass the return value in the done callback
+        done('You need to provide number');
+        return;
+      }
+    }
+    
+    // Pass the return value in the done callback
+    done(null, true);
+    }, 1000);
+}
