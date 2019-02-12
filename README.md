@@ -4,17 +4,24 @@ Bmazon Store has 3 options, Bamazon customer,Bamazon manager or Bamazon supervis
 
 ### Customer
 
-In the customer, a list of products with their product id, product name, and cost is displayed. 
+In the customer, a list of products with their product id, product name, and price is displayed. 
+Customer can make purchase by providing product id and quatity to be purchased.
 
 ![screenshots](img/customer.gif)
+![screenshots](img/Capture1.PNG)
+![screenshots](img/Capture2.PNG)
 
-
-the user will enter the product ID number.The user is then asked how many of the items they would like to purchase.
 
 ### Manager
-Manager is given a choice of 4 options: View Inventory, View Low Inventory, Add Inventory, Add New Product.
+Manager is given a choice of 4 options: View Products for Sale, View Low Inventory, Add Inventory, Add New Product.
+
 ![screenshots](img/manager.gif)
+![screenshots](img/Capture4.PNG)
+![screenshots](img/Capture5.PNG)
+![screenshots](img/Capture6.PNG)
 
 ### Supervisor
-Supervisor is given a choice of 2 options: View Inventory, Add New Department.
+Supervisor is given a choice of 2 options: View Product Sales by Department, Add New Department.
+
 ![screenshots](img/supervisor.gif)
+![screenshots](img/Capture3.PNG)
